@@ -1,3 +1,4 @@
+const { Sequelize } = require('sequelize');
 const { db, sequelizeInstances } = require("../../config/sequelize");
 const response = require("../tools/response");
 const { filterUserMapping } = require('../tools/filterUserMapping');
@@ -44,8 +45,6 @@ exports.getAllMasterCheck = async (req, res) => {
         const search = req.query.search ?? '';
         const user = req.user;
 
-        console.log('sss', user)
-
         const idSectionsFilter = await filterUserMapping(user.employeeCode);
 
         const data = await db.sms.mst_check.findAndCountAll({
@@ -80,13 +79,13 @@ exports.getAllMasterCheck = async (req, res) => {
             order: [['id', 'desc']],
             where: {
                 ...(search ? {
-                    [sequelizeInstances.Op.or]: [
-                        sequelizeInstances.literal(`LOWER(mst_lokasi.lokasi) LIKE '%${search}%'`),
-                        sequelizeInstances.literal(`LOWER(\`mst_lokasi->mst_sub_section\`.\`sub_section\`) LIKE '%${search}%'`),
-                        sequelizeInstances.literal(`LOWER(\`mst_lokasi->mst_sub_section->mst_section\`.\`section\`) LIKE '%${search}%'`),
-                        sequelizeInstances.literal(`LOWER(\`mst_lokasi->mst_sub_section->mst_section->area\`.\`area\`) LIKE '%${search}%'`),
-                        sequelizeInstances.literal(`LOWER(activity) LIKE '%${search}%'`),
-                        sequelizeInstances.literal(`LOWER(standard) LIKE '%${search}%'`)
+                    [Sequelize.Op.or]: [
+                        Sequelize.literal(`LOWER(mst_lokasi.lokasi) LIKE '%${search}%'`),
+                        Sequelize.literal(`LOWER(\`mst_lokasi->mst_sub_section\`.\`sub_section\`) LIKE '%${search}%'`),
+                        Sequelize.literal(`LOWER(\`mst_lokasi->mst_sub_section->mst_section\`.\`section\`) LIKE '%${search}%'`),
+                        Sequelize.literal(`LOWER(\`mst_lokasi->mst_sub_section->mst_section->area\`.\`area\`) LIKE '%${search}%'`),
+                        Sequelize.literal(`LOWER(activity) LIKE '%${search}%'`),
+                        Sequelize.literal(`LOWER(standard) LIKE '%${search}%'`)
                     ]
                 } : {}),
                 ...(idSectionsFilter.length > 0 ? {
