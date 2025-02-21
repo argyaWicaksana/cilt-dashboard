@@ -95,7 +95,7 @@ exports.createReport = async (req, res) => {
                 photo = 'uploads/tr_check/' + photo;
             }
 
-            await iot_prod.tr_check.update({
+            await db.sms.tr_check.update({
                 result: data[i].result,
                 pic: data[i].pic,
                 date_check: data[i].date_check,
