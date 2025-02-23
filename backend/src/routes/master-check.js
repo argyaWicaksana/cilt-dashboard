@@ -10,6 +10,6 @@ router.post('/', verifyToken, masterCheckController.createMasterCheck);
 router.put('/:id', verifyToken, masterCheckController.updateMasterCheck);
 router.delete('/:id', verifyToken, masterCheckController.deleteMasterCheck);
 
-router.get('/current-cycle', verifyToken, masterCheckController.getCurrentCycle);
+router.get('/current-cycle/:area', verifyToken, masterCheckController.getCurrentCycle);
 
 module.exports = router;
