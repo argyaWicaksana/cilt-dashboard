@@ -133,7 +133,8 @@ exports.getProgressCheck = async (req, res) => {
                     ...(idSectionsFilter.length > 0 ?
                         [where(col('mst_check.mst_lokasi.mst_sub_section.id_section'), { [Op.in]: idSectionsFilter })] : []),
                 ]
-            }
+            },
+            raw: true
         });
 
         response(req, res, {

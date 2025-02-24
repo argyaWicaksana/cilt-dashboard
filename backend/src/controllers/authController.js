@@ -22,8 +22,9 @@ exports.login = async (req, res) => {
       response(req, res, {
         status: 200,
         data: {
-          employeeCode: userData.lg_nik,
-          name: userData.lg_name,
+          lg_nik: userData.lg_nik,
+          lg_name: userData.lg_name,
+          user_level: userData.user_level,
           token: theToken
         }
       });

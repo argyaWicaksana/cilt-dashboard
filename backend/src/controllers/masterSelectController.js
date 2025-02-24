@@ -127,10 +127,10 @@ exports.getAllCycles = async (req, res) => {
                 [Sequelize.fn('distinct', Sequelize.col('cycle')), 'cycle']
             ],
             where: {
-                [Op.and]: [
+                [Sequelize.Op.and]: [
                     ...(month && year ? [
-                        where(fn('month', col('start_date')), month),
-                        where(fn('year', col('start_date')), year)
+                        Sequelize.where(Sequelize.fn('month', Sequelize.col('start_date')), month),
+                        Sequelize.where(Sequelize.fn('year', Sequelize.col('start_date')), year)
                     ] : []),
                     ...(idAreasFilter.length > 0 ? [{ area_id: idAreasFilter }] : [])
                 ]
