@@ -13,10 +13,25 @@ const toCamelCaseName = (str) => {
 // Define directories
 const directories = {
     [toCamelCaseName(
-        process.env.MYSQL_SMS_NAME
+        process.env.MYSQL_47_SMS_NAME
     )]: `../src/models/${toCamelCaseName(
-        process.env.MYSQL_SMS_NAME
-    )}`
+        process.env.MYSQL_47_SMS_NAME
+    )}`,
+    [toCamelCaseName(
+        process.env.MYSQL_47_AIO_IOT_OC1_NAME
+    )]: `../src/models/${toCamelCaseName(
+        process.env.MYSQL_47_AIO_IOT_OC1_NAME
+    )}`,
+    [toCamelCaseName(
+        process.env.MYSQL_47_AIO_IOT_OC2_NAME
+    )]: `../src/models/${toCamelCaseName(
+        process.env.MYSQL_47_AIO_IOT_OC2_NAME
+    )}`,
+    [toCamelCaseName(
+        process.env.MYSQL_47_AIO_IOT_FSB_NAME
+    )]: `../src/models/${toCamelCaseName(
+        process.env.MYSQL_47_AIO_IOT_FSB_NAME
+    )}`,
     // add more directories in here if needed
 };
 
@@ -36,35 +51,106 @@ const operatorsAliases = {
 
 // Define pool configurations
 const poolConfigurations = {
-    [toCamelCaseName(process.env.MYSQL_SMS_NAME)]: {
-        min: Number(process.env.MYSQL_SMS_POOL_MIN),
-        max: Number(process.env.MYSQL_SMS_POOL_MAX),
-        idle: Number(process.env.MYSQL_SMS_POOL_IDLE),
-        acquire: Number(process.env.MYSQL_SMS_POOL_ACQUIRE),
-        evict: Number(process.env.MYSQL_SMS_POOL_EVICT),
+    [toCamelCaseName(process.env.MYSQL_47_SMS_NAME)]: {
+        min: Number(process.env.MYSQL_47_POOL_MIN),
+        max: Number(process.env.MYSQL_47_POOL_MAX),
+        idle: Number(process.env.MYSQL_47_POOL_IDLE),
+        acquire: Number(process.env.MYSQL_47_POOL_ACQUIRE),
+        evict: Number(process.env.MYSQL_47_POOL_EVICT),
         handleDisconnects: true,
-    }
-    // Add other pool configurations as needed
+    },
+    [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC1_NAME)]: {
+        min: Number(process.env.MYSQL_47_POOL_MIN),
+        max: Number(process.env.MYSQL_47_POOL_MAX),
+        idle: Number(process.env.MYSQL_47_POOL_IDLE),
+        acquire: Number(process.env.MYSQL_47_POOL_ACQUIRE),
+        evict: Number(process.env.MYSQL_47_POOL_EVICT),
+        handleDisconnects: true,
+    },
+    [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC2_NAME)]: {
+        min: Number(process.env.MYSQL_47_POOL_MIN),
+        max: Number(process.env.MYSQL_47_POOL_MAX),
+        idle: Number(process.env.MYSQL_47_POOL_IDLE),
+        acquire: Number(process.env.MYSQL_47_POOL_ACQUIRE),
+        evict: Number(process.env.MYSQL_47_POOL_EVICT),
+        handleDisconnects: true,
+    },
+    [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_FSB_NAME)]: {
+        min: Number(process.env.MYSQL_47_POOL_MIN),
+        max: Number(process.env.MYSQL_47_POOL_MAX),
+        idle: Number(process.env.MYSQL_47_POOL_IDLE),
+        acquire: Number(process.env.MYSQL_47_POOL_ACQUIRE),
+        evict: Number(process.env.MYSQL_47_POOL_EVICT),
+        handleDisconnects: true,
+    },
 };
 
 // Define sequelize configurations
 const sequelizeConfigurations = {
-    [toCamelCaseName(process.env.MYSQL_SMS_NAME)]: {
-        host: process.env.MYSQL_SMS_HOST,
-        dialect: process.env.MYSQL_SMS_DIALECT,
-        database: process.env.MYSQL_SMS_NAME,
-        username: process.env.MYSQL_SMS_USER,
-        password: process.env.MYSQL_SMS_PASS,
-        pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_SMS_NAME)],
-        port: Number(process.env.MYSQL_SMS_PORT),
+    [toCamelCaseName(process.env.MYSQL_47_SMS_NAME)]: {
+        host: process.env.MYSQL_47_HOST,
+        dialect: process.env.MYSQL_47_DIALECT,
+        database: process.env.MYSQL_47_SMS_NAME,
+        username: process.env.MYSQL_47_USER,
+        password: process.env.MYSQL_47_PASS,
+        pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_SMS_NAME)],
+        port: Number(process.env.MYSQL_47_PORT),
         define: {
             timestamps: false,
             timezone: "+07:00",
         },
-        logging: Boolean(process.env.MYSQL_SMS_LOGGING),
+        logging: Boolean(process.env.MYSQL_47_LOGGING),
         timezone: "+07:00",
         operatorsAliases: operatorsAliases,
-    }
+    },
+    [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC1_NAME)]: {
+        host: process.env.MYSQL_47_HOST,
+        dialect: process.env.MYSQL_47_DIALECT,
+        database: process.env.MYSQL_47_AIO_IOT_OC1_NAME,
+        username: process.env.MYSQL_47_USER,
+        password: process.env.MYSQL_47_PASS,
+        pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC1_NAME)],
+        port: Number(process.env.MYSQL_47_PORT),
+        define: {
+            timestamps: false,
+            timezone: "+07:00",
+        },
+        logging: Boolean(process.env.MYSQL_47_LOGGING),
+        timezone: "+07:00",
+        operatorsAliases: operatorsAliases,
+    },
+    [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC2_NAME)]: {
+        host: process.env.MYSQL_47_HOST,
+        dialect: process.env.MYSQL_47_DIALECT,
+        database: process.env.MYSQL_47_AIO_IOT_OC2_NAME,
+        username: process.env.MYSQL_47_USER,
+        password: process.env.MYSQL_47_PASS,
+        pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC2_NAME)],
+        port: Number(process.env.MYSQL_47_PORT),
+        define: {
+            timestamps: false,
+            timezone: "+07:00",
+        },
+        logging: Boolean(process.env.MYSQL_47_LOGGING),
+        timezone: "+07:00",
+        operatorsAliases: operatorsAliases,
+    },
+    [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_FSB_NAME)]: {
+        host: process.env.MYSQL_47_HOST,
+        dialect: process.env.MYSQL_47_DIALECT,
+        database: process.env.MYSQL_47_AIO_IOT_FSB_NAME,
+        username: process.env.MYSQL_47_USER,
+        password: process.env.MYSQL_47_PASS,
+        pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_AIO_IOT_FSB_NAME)],
+        port: Number(process.env.MYSQL_47_PORT),
+        define: {
+            timestamps: false,
+            timezone: "+07:00",
+        },
+        logging: Boolean(process.env.MYSQL_47_LOGGING),
+        timezone: "+07:00",
+        operatorsAliases: operatorsAliases,
+    },
     // Add other sequelize configurations as needed
 };
 

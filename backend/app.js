@@ -12,7 +12,9 @@ const dotenv = require("dotenv");
 const moment = require("moment");
 const fileUpload = require("express-fileupload");
 const csurf = require("csurf");
+const cron = require("node-cron");
 const response = require("./src/tools/response");
+const cronController = require("./src/controllers/cronController");
 
 dotenv.config({ path: path.join(__dirname, "./env/.env.dev") });
 
@@ -77,16 +79,18 @@ app.use((req, res, next) => {
 // Routes registration
 const routesDir = path.join(__dirname, './src/routes');
 fs.readdirSync(routesDir).forEach(file => {
-  const routePath = path.join(routesDir, file);
-  const routePathWithoutExt = path.parse(routePath).name;
+    const routePath = path.join(routesDir, file);
+    const routePathWithoutExt = path.parse(routePath).name;
 
-  const dashedRoutePath = routePathWithoutExt.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase();
+    const dashedRoutePath = routePathWithoutExt.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase();
 
-  app.use(`/api/${dashedRoutePath}`, require(routePath));
+    app.use(`/api/${dashedRoutePath}`, require(routePath));
 });
 
 // Scheduler
-// cronController.scheduleJobs();
+cron.schedule('0 7 * * *', cronController.scheduleJobs);
+cron.schedule('0 15 * * *', cronController.scheduleJobs);
+cron.schedule('0 23 * * *', cronController.scheduleJobs);
 
 app.get("/api/csrf-token", (req, res) => {
     // res.cookie('XSRF-TOKEN', req.csrfToken());
