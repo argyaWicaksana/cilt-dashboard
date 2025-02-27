@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
+const moment = require("moment");
 const { db, sequelizeInstances } = require("../../config/sequelize");
-const response = require("../tools/response");
 const aio_iot = [
     sequelizeInstances.aio_iot_oci1,
     sequelizeInstances.aio_iot_oci2,
@@ -95,13 +95,33 @@ async function closeCurrCycle(areaId, identityId = 0) {
 
 async function insertCycle(cycle, areaId, identityId = 0) {
     try {
+        const date = moment().format('YYYY-MM-DD');
+
+        const cycleNote = await db.sms.cycle_note.findOne({
+            where: {
+                area_id: areaId,
+                start_date: {
+                    [Sequelize.Op.lte]: date
+                },
+                end_date: {
+                    [Sequelize.Op.gte]: date
+                }
+            }
+        });
+
         console.log('insert new data cycle for area', areaId);
         const cycleData = await db.sms.mst_cycle.create({
             cycle: `Cycle ${cycle}`,
             area_id: areaId,
             ...(identityId === 0 ? {} : { prodidentity_id: identityId }),
+            ...(cycleNote ? { reason_stop: cycleNote.reason_stop } : {}),
             start_date: moment().startOf('day').format("YYYY-MM-DD HH:mm:ss")
         });
+
+        // if its stop cycle, throw error to stop the program and prevent generating new task
+        if (cycleNote) {
+            throw new Error('there is no task for this cycle');
+        }
 
         return cycleData;
     } catch (e) {
@@ -154,7 +174,7 @@ async function insertTrCheck(cycleData) {
 
         if (trChecks.length > 0) {
             console.log("insert tr check...");
-            await iot_prod.tr_check.bulkCreate(trChecks);
+            await db.sms.tr_check.bulkCreate(trChecks);
         }
     } catch (e) {
         throw e;

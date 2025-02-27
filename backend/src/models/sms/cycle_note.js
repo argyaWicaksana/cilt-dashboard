@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
     const Model = sequelize.define(
-        "mst_cycle",
+        "cycle_note",
         {
             id: {
                 allowNull: false,
@@ -8,33 +8,30 @@ module.exports = function (sequelize, DataTypes) {
                 primaryKey: true,
                 type: DataTypes.INTEGER,
             },
-            cycle: {
-                type: DataTypes.STRING,
-            },
-            area_id: {
-                type: DataTypes.INTEGER,
-            },
-            sub_section_id: {
-                type: DataTypes.INTEGER,
-            },
-            prodidentity_id: {
-                type: DataTypes.INTEGER,
-            },
-            start_date: {
-                type: DataTypes.DATE,
-            },
-            end_date: {
-                type: DataTypes.DATE,
-            },
             reason_stop: {
                 type: DataTypes.STRING,
             },
+            start_date: {
+                type: DataTypes.DATEONLY,
+            },
+            end_date: {
+                type: DataTypes.DATEONLY,
+            },
+            area_id: {
+                type: DataTypes.INTEGER,
+            }
         },
         {
-            tableName: "mst_cycle",
+            tableName: "cycle_note",
             timestamps: false
         }
     );
 
+    Model.associate = function (models) {
+        Model.belongsTo(models.mst_area, {
+            foreignKey: 'area_id'
+        });
+    }
+
     return Model;
-}
+} 

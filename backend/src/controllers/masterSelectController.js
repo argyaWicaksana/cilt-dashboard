@@ -67,7 +67,7 @@ exports.getAllSubSections = async (req, res) => {
             },
             ...(areaId ? {
                 include: {
-                    model: iot_prod.mst_section,
+                    model: db.sms.mst_section,
                     attributes: [],
                     where: {
                         id_area: areaId
@@ -95,7 +95,7 @@ exports.getAllSubSections = async (req, res) => {
 exports.getAllLocations = async (req, res) => {
     try {
         const subSectionId = req.query.sub_section_id;
-        const data = await iot_prod.mst_lokasi.findAll({
+        const data = await db.sms.mst_lokasi.findAll({
             attributes: ['id', ['lokasi', 'name']],
             where: {
                 ...(subSectionId ? { id_sub_section: subSectionId } : {})
