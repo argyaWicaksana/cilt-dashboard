@@ -26,6 +26,17 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+const authorizeUserLevels = (...userLevels) => (req, res, next) => {
+  if (!req.user || !userLevels.includes(req.user.userLevel)) {
+    return response(req, res, {
+      status: 403,
+      message: "Forbidden - You don't have permission"
+    });
+  }
+  next();
+}
+
 module.exports = {
   verifyToken,
+  authorizeUserLevels
 };

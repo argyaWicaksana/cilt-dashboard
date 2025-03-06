@@ -17,7 +17,10 @@ exports.login = async (req, res) => {
     });
 
     if (userData) {
-      const theToken = jwt.sign({ employeeCode: userData.lg_nik }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const theToken = jwt.sign({
+        employeeCode: userData.lg_nik,
+        userLevel: userData.user_level
+      }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
       response(req, res, {
         status: 200,

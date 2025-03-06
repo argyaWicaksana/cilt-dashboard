@@ -14,9 +14,6 @@ module.exports = function (sequelize, DataTypes) {
             area_id: {
                 type: DataTypes.INTEGER,
             },
-            sub_section_id: {
-                type: DataTypes.INTEGER,
-            },
             prodidentity_id: {
                 type: DataTypes.INTEGER,
             },

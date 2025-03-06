@@ -1,13 +1,24 @@
 const { Sequelize } = require('sequelize');
 const moment = require("moment");
+const { Telegraf } = require("telegraf");
+const response = require("../tools/response");
+const dotenv = require("dotenv");
+const path = require("path");
 const { db, sequelizeInstances } = require("../../config/sequelize");
+
+dotenv.config({ path: path.join(__dirname, "../../env/.env.dev") });
 const aio_iot = [
-    sequelizeInstances.aio_iot_oci1,
-    sequelizeInstances.aio_iot_oci2,
-    sequelizeInstances.aio_iot_fsb,
+    sequelizeInstances.aioIotOci1,
+    sequelizeInstances.aioIotOci2,
+    sequelizeInstances.aioIotFsb,
 ];
+let currentCycle;
+let transaction;
+const bot = new Telegraf(process.env.BOT_API_TOKEN);
 
 async function scheduler(areaId) {
+    transaction = await sequelizeInstances.sms.transaction();
+
     try {
         const query = `
                 SELECT id, created_date
@@ -18,43 +29,57 @@ async function scheduler(areaId) {
             `;
 
         const identity = await aio_iot[areaId - 1].query(query, {
-            type: QueryTypes.SELECT,
+            type: Sequelize.QueryTypes.SELECT,
         });
 
         if (identity.length > 0) {
+            currentCycle = await db.sms.mst_cycle.findOne({
+                attributes: { exclude: ['area_id'] },
+                where: {
+                    end_date: null,
+                    area_id: areaId
+                }
+            });
+
+            if (!currentCycle) {
+                throw new Error('Cant find current cycle!');
+            }
+
+            if (identity[0].id <= currentCycle.prodidentity_id) {
+                throw new Error('Not time to create a new cycle yet!');
+            }
+
             console.log('insert cycle area', areaId, identity[0].id)
-            await closeCurrCycle(areaId, identity[0].id);
-            const nextCycle = await getNextCycle(areaId);
+            await closeCurrentCycle(areaId, identity[0].id);
+            const nextCycle = await getNextCycle();
             const cycleData = await insertCycle(nextCycle, areaId, identity[0].id);
-            await insertTrCheck(cycleData)
-            await sendReminder();
+
+            // check if its not stop cycle
+            if (!cycleData.reason_stop) {
+                await insertTaskCheck(cycleData)
+                await sendReminder(areaId, nextCycle);
+            }
         }
+
+        await transaction.commit();
+
+        return 'Generate Successfully';
     } catch (e) {
-        console.log('Error', e.message);
+        await transaction.rollback();
+        console.log('Error', e);
+        return e.message;
     }
 }
 
 
-async function getNextCycle(areaId) {
+async function getNextCycle() {
     try {
-        console.log('check last cycle and note cycle...')
-        const currentYear = new Date().getFullYear();
-        const lastCycleThisYear = await db.sms.mst_cycle.findOne({
-            attributes: ['id', 'cycle', 'start_date', 'end_date'],
-            where: {
-                [Sequelize.Op.and]: [
-                    Sequelize.where(
-                        Sequelize.fn('year', Sequelize.col('start_date')), currentYear),
-                    { area_id: areaId }
-                ]
-            },
-            order: [['end_date', 'desc']]
-        });
-
+        console.log('check if current cycle is this year...')
+        const isCurrentYear = moment(currentCycle.start_date).isSame(new Date(), 'year');
         let nextCycle = 1;
 
-        if (lastCycleThisYear) {
-            nextCycle = parseInt(lastCycleThisYear.cycle.split(' ')[1]) + 1;
+        if (isCurrentYear) {
+            nextCycle = parseInt(currentCycle.cycle.split(' ')[1]) + 1;
         }
 
         return nextCycle;
@@ -63,31 +88,14 @@ async function getNextCycle(areaId) {
     }
 }
 
-async function closeCurrCycle(areaId, identityId = 0) {
+async function closeCurrentCycle(areaId) {
     try {
         console.log('close curr cycle', areaId);
-
-        const currCycle = await db.sms.mst_cycle.findOne({
-            attributes: { exclude: ['area_id'] },
-            where: {
-                end_date: null,
-                area_id: areaId
-            }
-        });
-
-        if (!currCycle) {
-            throw new Error('Cant find current cycle!');
-        }
-
-        if (identityId <= currCycle.prodidentity_id) {
-            throw new Error('Not time to create a new cycle yet!');
-        }
-
         // update end_date
-        currCycle.end_date = moment().format("YYYY-MM-DD HH:mm:ss");
+        currentCycle.end_date = moment().format("YYYY-MM-DD HH:mm:ss");
 
         console.log('update curr cycle end_date');
-        await currCycle.save();
+        await currentCycle.save({ transaction });
     } catch (e) {
         throw e;
     }
@@ -97,7 +105,7 @@ async function insertCycle(cycle, areaId, identityId = 0) {
     try {
         const date = moment().format('YYYY-MM-DD');
 
-        const cycleNote = await db.sms.cycle_note.findOne({
+        const cycleStopData = await db.sms.cycle_note.findOne({
             where: {
                 area_id: areaId,
                 start_date: {
@@ -114,14 +122,9 @@ async function insertCycle(cycle, areaId, identityId = 0) {
             cycle: `Cycle ${cycle}`,
             area_id: areaId,
             ...(identityId === 0 ? {} : { prodidentity_id: identityId }),
-            ...(cycleNote ? { reason_stop: cycleNote.reason_stop } : {}),
+            ...(cycleStopData ? { reason_stop: cycleStopData.reason_stop } : {}),
             start_date: moment().startOf('day').format("YYYY-MM-DD HH:mm:ss")
-        });
-
-        // if its stop cycle, throw error to stop the program and prevent generating new task
-        if (cycleNote) {
-            throw new Error('there is no task for this cycle');
-        }
+        }, { transaction });
 
         return cycleData;
     } catch (e) {
@@ -129,10 +132,10 @@ async function insertCycle(cycle, areaId, identityId = 0) {
     }
 }
 
-async function insertTrCheck(cycleData) {
+async function insertTaskCheck(cycleData) {
     try {
         console.log('increment/decrement current_week...');
-        await db.sms.sequelize.query(`
+        await sequelizeInstances.sms.query(`
             UPDATE mst_check mc
             JOIN mst_lokasi ml ON ml.id = mc.id_location
             SET mc.current_week = CASE
@@ -140,7 +143,8 @@ async function insertTrCheck(cycleData) {
                 ELSE mc.current_week + 1
             END
             WHERE ml.id_area = ?`, {
-            replacements: [cycleData.area_id]
+            replacements: [cycleData.area_id],
+            transaction
         });
 
         // get master check where current_week equal total_cycle
@@ -174,14 +178,51 @@ async function insertTrCheck(cycleData) {
 
         if (trChecks.length > 0) {
             console.log("insert tr check...");
-            await db.sms.tr_check.bulkCreate(trChecks);
+            await db.sms.tr_check.bulkCreate(trChecks, { transaction });
         }
     } catch (e) {
         throw e;
     }
 }
 
-async function sendReminder() {
+async function sendReminder(areaId, cycle) {
+    try {
+        console.log("Send reminder...")
+        const areaName = ['LINE 1', 'LINE 2', 'LINE 3'];
+        const groupChatId = process.env.GROUP_CHAT_ID;
+
+        await bot.telegram.sendMessage(
+            groupChatId,
+            `Dear All, mohon bantuannya untuk untuk melakukan pengecekan CILT ${areaName[areaId - 1]} Cycle ${cycle}`
+        );
+
+        console.log('successfully send reminder')
+    } catch (e) {
+        throw e;
+    }
+}
+
+exports.scheduleJobsApi = async (req, res) => {
+    try {
+        const line1 = await scheduler(1);
+        const line2 = await scheduler(2);
+        const line3 = await scheduler(3);
+
+        response(req, res, {
+            status: 200,
+            data: {
+                line_1: line1,
+                line_2: line2,
+                line_3: line3,
+            },
+        });
+    } catch (error) {
+        console.error('api', error);
+        response(req, res, {
+            status: 500,
+            data: error,
+        });
+    }
 }
 
 exports.scheduleJobs = async () => {
