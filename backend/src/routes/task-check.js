@@ -18,5 +18,7 @@ const upload = multer({ storage });
 
 router.get('/', verifyToken, taskCheckController.getAllTaskCheck);
 router.put('/', verifyToken, upload.any(), taskCheckController.createReport);
+router.get('/current-cycle/:areaId', verifyToken, taskCheckController.getCurrentCycle);
+router.get('/progress-cilt/:areaId', verifyToken, taskCheckController.getProgressCiltBySection);
 
 module.exports = router;

@@ -2,6 +2,7 @@ const { Sequelize } = require('sequelize');
 const { db, sequelizeInstances } = require("../../config/sequelize");
 const response = require("../tools/response");
 const { filterUserMapping } = require('../tools/filterUserMapping');
+const moment = require('moment');
 
 exports.getAllTaskCheck = async (req, res) => {
     try {
@@ -118,6 +119,86 @@ exports.createReport = async (req, res) => {
         });
     } catch (error) {
         t.rollback();
+        console.error(error);
+        response(req, res, {
+            status: 500,
+            data: error,
+        });
+    }
+}
+
+exports.getProgressCiltBySection = async (req, res) => {
+    try {
+        const { areaId } = req.params;
+
+        const data = await db.sms.tr_check.findAll({
+            attributes: [
+                [Sequelize.literal('CAST(SUM(IF(result IS NULL, 0, 1)) AS UNSIGNED)'), 'finish'],
+                [Sequelize.fn('count', Sequelize.col('*')), 'total'],
+                [Sequelize.col('mst_check.mst_lokasi.mst_sub_section.sub_section'), 'sub_section'],
+                [Sequelize.col('mst_cycle.cycle'), 'cycle'],
+            ],
+            include: [
+                {
+                    model: db.sms.mst_check,
+                    attributes: [],
+                    include: {
+                        model: db.sms.mst_lokasi,
+                        attributes: [],
+                        include: {
+                            model: db.sms.mst_sub_section,
+                            attributes: [],
+                            include: {
+                                model: db.sms.mst_section,
+                                attributes: []
+                            }
+                        }
+                    }
+                },
+                {
+                    model: db.sms.mst_cycle,
+                    attributes: []
+                }
+            ],
+            where: {
+                '$mst_cycle.end_date$': null,
+                '$mst_check.mst_lokasi.mst_sub_section.mst_section.id_area$': areaId
+            },
+            group: [
+                'mst_check.mst_lokasi.id_sub_section',
+                'id_cycle'
+            ]
+        });
+
+        response(req, res, {
+            status: 200,
+            data,
+        });
+    } catch (error) {
+        console.error(error);
+        response(req, res, {
+            status: 500,
+            data: error,
+        });
+    }
+}
+
+exports.getCurrentCycle = async (req, res) => {
+    try {
+        const { areaId } = req.params;
+
+        const data = await db.sms.mst_cycle.findOne({
+            where: {
+                area_id: areaId,
+                end_date: null
+            }
+        });
+
+        response(req, res, {
+            status: 200,
+            data,
+        });
+    } catch (error) {
         console.error(error);
         response(req, res, {
             status: 500,
