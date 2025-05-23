@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
     const Model = sequelize.define(
-        "mst_mapping_user_area",
+        "table_user",
         {
             id: {
                 allowNull: false,
@@ -11,35 +11,20 @@ module.exports = function (sequelize, DataTypes) {
             lg_nik: {
                 type: DataTypes.STRING,
             },
-            id_area: {
-                type: DataTypes.INTEGER,
-            },
-            id_section: {
-                type: DataTypes.INTEGER,
-            },
-            is_active: {
+            user_level: {
                 type: DataTypes.INTEGER,
             },
         },
         {
-            tableName: "mst_mapping_user_area",
-            timestamps: false
+            tableName: "mst_sub_section",
         }
     );
 
     Model.associate = function (models) {
-        Model.belongsTo(models.vw_login, {
-            foreignKey: 'lg_nik',
-        });
-
-        Model.belongsTo(models.mst_area, {
-            foreignKey: 'id_area',
-        });
-
         Model.belongsTo(models.mst_section, {
-            foreignKey: 'id_section',
+            foreignKey: 'id_section'
         });
-    }
+    };
 
     return Model;
-}
+} 

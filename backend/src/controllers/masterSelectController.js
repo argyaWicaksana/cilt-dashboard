@@ -149,3 +149,56 @@ exports.getAllCycles = async (req, res) => {
         });
     }
 }
+
+exports.getAllEmployees = async (req, res) => {
+    try {
+        const { page, search, user_level } = req.query;
+
+        const data = await db.sms.vw_login.findAll({
+            attributes: [
+                'lg_nik',
+                'lg_name',
+                [Sequelize.col('userlevel.userlevelname'), 'user_level_name']
+            ],
+            include: {
+                model: db.sms.userlevels,
+                attributes: []
+            },
+            where: {
+                ...(search ? {
+                    [Sequelize.Op.or]: [
+                        {
+                            lg_nik: {
+                                [Sequelize.Op.substring]: search
+                            }
+                        },
+                        {
+                            lg_name: {
+                                [Sequelize.Op.substring]: search
+                            }
+                        },
+                        {
+                            '$userlevel.userlevelname$': {
+                                [Sequelize.Op.substring]: search
+                            }
+                        },
+                    ],
+                } : {}),
+                ...(user_level ? { user_level } : {})
+            },
+            offset: 10 * ((page ?? 1) - 1),
+            limit: 10,
+        });
+
+        response(req, res, {
+            status: 200,
+            data,
+        });
+    } catch (e) {
+        console.error(error);
+        response(req, res, {
+            status: 500,
+            data: error,
+        });
+    }
+}

@@ -18,6 +18,12 @@ module.exports = function (sequelize, DataTypes) {
             timestamps: false
         }
     );
+
+    Model.associate = function (models) {
+        Model.belongsTo(models.userlevels, {
+            foreignKey: 'user_level'
+        });
+    }
     
     return Model;
 

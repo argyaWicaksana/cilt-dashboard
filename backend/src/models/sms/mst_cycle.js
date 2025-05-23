@@ -33,5 +33,12 @@ module.exports = function (sequelize, DataTypes) {
         }
     );
 
+    Model.associate = function (models) {
+        Model.hasMany(models.tr_check, {
+            foreignKey: 'id_cycle'
+        });
+
+    };
+
     return Model;
 }

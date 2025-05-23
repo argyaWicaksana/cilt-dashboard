@@ -129,7 +129,9 @@ exports.createReport = async (req, res) => {
 
 exports.getProgressCiltBySection = async (req, res) => {
     try {
-        const { areaId } = req.params;
+        const { areaId, yearMonth } = req.params;
+
+        const [year, month] = yearMonth.split('-');
 
         const data = await db.sms.tr_check.findAll({
             attributes: [
@@ -137,6 +139,7 @@ exports.getProgressCiltBySection = async (req, res) => {
                 [Sequelize.fn('count', Sequelize.col('*')), 'total'],
                 [Sequelize.col('mst_check.mst_lokasi.mst_sub_section.sub_section'), 'sub_section'],
                 [Sequelize.col('mst_cycle.cycle'), 'cycle'],
+                [Sequelize.col('mst_cycle.reason_stop'), 'reason_stop'],
             ],
             include: [
                 {
@@ -161,13 +164,51 @@ exports.getProgressCiltBySection = async (req, res) => {
                 }
             ],
             where: {
-                '$mst_cycle.end_date$': null,
+                [Sequelize.Op.and]: [
+                    Sequelize.where(Sequelize.fn('month', Sequelize.col('mst_cycle.start_date')), month),
+                    Sequelize.where(Sequelize.fn('year', Sequelize.col('mst_cycle.start_date')), year),
+                ],
                 '$mst_check.mst_lokasi.mst_sub_section.mst_section.id_area$': areaId
             },
             group: [
                 'mst_check.mst_lokasi.id_sub_section',
                 'id_cycle'
             ]
+        });
+
+        response(req, res, {
+            status: 200,
+            data,
+        });
+    } catch (error) {
+        console.error(error);
+        response(req, res, {
+            status: 500,
+            data: error,
+        });
+    }
+}
+
+exports.getAllCycle = async (req, res) => {
+    try {
+        const { areaId, yearMonth } = req.params;
+        const [year, month] = yearMonth.split('-');
+
+        const data = await db.sms.mst_cycle.findAll({
+            attributes: [
+                'id',
+                'cycle',
+                'area_id',
+                'reason_stop'
+            ],
+            where: {
+                area_id: areaId,
+                [Sequelize.Op.and]: [
+                    Sequelize.where(Sequelize.fn('month', Sequelize.col('start_date')), month),
+                    Sequelize.where(Sequelize.fn('year', Sequelize.col('start_date')), year),
+                ]
+            },
+            order: [['id', 'asc']]
         });
 
         response(req, res, {

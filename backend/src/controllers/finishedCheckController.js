@@ -8,7 +8,7 @@ const { filterUserMapping } = require('../tools/filterUserMapping');
 exports.getAllFinishedCheck = async (req, res) => {
     try {
         const page = req.query.page ?? 1;
-        const { area, section, activity, cycle, monthYear } = req.query;
+        const { area, section, activity, cycle, month_year } = req.query;
         const user = req.user;
 
         let conditions = [];
@@ -41,10 +41,10 @@ exports.getAllFinishedCheck = async (req, res) => {
             replacements.activity = `%${activity}%`;
         }
 
-        if (monthYear) {
+        if (month_year) {
             conditions.push("MONTH(tc.created_at) = :month AND YEAR(tc.created_at) = :year");
-            replacements.month = monthYear.split("-")[1];
-            replacements.year = monthYear.split("-")[0];
+            replacements.month = month_year.split("-")[1];
+            replacements.year = month_year.split("-")[0];
         }
 
         const joinQuery = `
