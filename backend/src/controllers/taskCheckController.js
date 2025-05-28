@@ -101,8 +101,7 @@ exports.createReport = async (req, res) => {
                 pic: data[i].pic,
                 date_check: data[i].date_check,
                 note: data[i].note,
-                photo,
-                executor_2: data[i].executor_2
+                photo
             }, {
                 where: { id: data[i].id },
                 transaction: t

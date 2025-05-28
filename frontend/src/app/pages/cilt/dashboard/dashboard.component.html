@@ -1,0 +1,36 @@
+<app-breadcrumbs title="CILT Dashboard" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="row mb-3">
+    <div class="col-sm-auto">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="ri-calendar-line"></i>
+            </span>
+            <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
+                placeholder="Select Month" [value]="yearMonthFilter" (change)="monthFilterChange($event)"
+                [convertModelValue]="true" [plugins]="monthFlatpickr">
+        </div>
+    </div>
+</div>
+
+<div *ngFor="let lineProduction of lineProductions; let i = index" class="card">
+    <div class="card-header d-flex justify-content-between">
+        <div>
+            <h4 class="card-title mb-0">Progress {{ lineProduction }}</h4>
+        </div>
+    </div>
+    <div class="card-body row">
+        <div *ngIf="cycleStops[i] && cycleStops[i].length > 0" class="px-4">
+            <h6>Cycle stop:</h6>
+            <ul *ngFor="let c of cycleStops[i]">
+                <li>{{ c.cycle }} ({{ c.reason_stop }})</li>
+            </ul>
+        </div>
+        <div *ngIf="progressCiltBarChart[i]" class="col-lg-6">
+            <div echarts [options]="progressCiltBarChart[i]"></div>
+        </div>
+        <div *ngIf="progressCiltPieChart[i]" class="col-lg-6">
+            <div echarts [options]="progressCiltPieChart[i]"></div>
+        </div>
+    </div>
+</div>

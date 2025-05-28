@@ -1,0 +1,113 @@
+<app-breadcrumbs title="Stop Cycle" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <button *ngIf="hasAccess" type="button" class="btn btn-primary add-btn" id="create-btn"
+            (click)="openModal(contentModal)">
+            <i class="ri-add-line align-bottom me-1"></i>
+            Add
+        </button>
+        <div>
+            <select class="form-select" #areaFilter (change)="currentPage = 1;loadData(areaFilter.value)">
+                <option value="">Select Area</option>
+                <option value="1">LINE 1</option>
+                <option value="2">LINE 2</option>
+                <option value="3">LINE 3</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                        <th scope="col">Reason Stop</th>
+                        <th scope="col">Area</th>
+                        <th scope="col" *ngIf="hasAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of items">
+                        <td>{{item.start_date}}</td>
+                        <td>{{item.end_date}}</td>
+                        <td>{{item.reason_stop}}</td>
+                        <td>{{item.area}}</td>
+                        <td *ngIf="hasAccess">
+                            <div class="hstack gap-3 fs-15">
+                                <a href="javascript:void(0);" class="link-primary"
+                                    (click)="openModal(contentModal, item)">
+                                    <i class=" ri-edit-box-line"></i></a>
+                                <a href="javascript:void(0);" class="link-danger" (click)="deleteItem(item.id)">
+                                    <i class="ri-delete-bin-5-line"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <ngb-pagination [collectionSize]="totalData" [(page)]="currentPage"
+                (pageChange)="loadData(areaFilter.value)" [maxSize]="5">
+            </ngb-pagination>
+        </div>
+    </div>
+</div>
+
+<ng-template #contentModal role="document" let-modal>
+    <div class="modal-header bg-light p-3">
+        <h5 class="modal-title">Stop Cycle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"
+            (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <form (ngSubmit)="submit()" [formGroup]="fg" class="tablelist-form" autocomplete="off">
+        <div class="modal-body">
+            <div class="mb-3">
+                <select class="form-select mb-3" formControlName="area"
+                    [ngClass]="{ 'is-invalid': submitted && form['area'].errors }">
+                    <option value="">Select Area</option>
+                    <option value="1">LINE 1</option>
+                    <option value="2">LINE 2</option>
+                    <option value="3">LINE 3</option>
+                </select>
+                <div class="invalid-feedback text-start">
+                    <div>area is required</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
+                    [ngClass]="{ 'is-invalid': submitted && form['rangeDate'].errors }" placeholder="Range Date"
+                    [convertModelValue]="true" mode="range" formControlName="rangeDate">
+                <div class="invalid-feedback text-start">
+                    <div>range date is required</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <textarea class="form-control" rows="3" placeholder="Reason Stop" formControlName="reason_stop"
+                    [ngClass]="{ 'is-invalid': submitted && form['reason_stop'].errors }"></textarea>
+                <div class="invalid-feedback text-start">
+                    <div>reason stop is required</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="hstack gap-2 justify-content-end">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                    (click)="modal.close('Close click')">Close</button>
+                <button type="submit" class="btn btn-success" id="submit-btn">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</ng-template>
+
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="fire" [fullScreen]="true">
+    <p style="font-size: 20px; color: white">
+        Loading...
+    </p>
+</ngx-spinner>

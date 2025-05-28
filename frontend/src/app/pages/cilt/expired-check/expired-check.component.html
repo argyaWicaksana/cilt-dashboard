@@ -1,0 +1,109 @@
+<app-breadcrumbs title="Pengecekan Expired" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="card">
+    <div class="card-header d-flex gap-3">
+        <div>
+            <select [(ngModel)]="areaSelected" (ngModelChange)="getSections()" class="form-select">
+                <option value="0" selected>Select Area</option>
+                <option value="1">LINE 1</option>
+                <option value="2">LINE 2</option>
+                <option value="3">LINE 3</option>
+            </select>
+        </div>
+        <div>
+            <select [(ngModel)]="sectionSelected" class="form-select">
+                <option value="0" selected>Select Section</option>
+                <option *ngFor="let section of sectionsFilter" [value]="section.id">{{section.name}}</option>
+            </select>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" (click)="loadData()">
+                <i class="ri-equalizer-line me-2 align-bottom"></i>Filters
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th scope="col">Area</th>
+                        <th scope="col" class="text-nowrap">Sub Section</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Cycle</th>
+                        <th scope="col">Activity</th>
+                        <th scope="col" *ngIf="hasAccess">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of items">
+                        <td class="text-nowrap">{{item.area}}</td>
+                        <td>{{item.subSection}}</td>
+                        <td>{{item.location}}</td>
+                        <td class="text-nowrap">{{item.cycle}}</td>
+                        <td>{{item.activity}}</td>
+                        <td *ngIf="hasAccess">
+                            <div class="hstack gap-3 fs-15">
+                                <a href="javascript:void(0);" class="link-primary"
+                                    (click)="openModal(contentModal, item)">
+                                    <i class=" ri-edit-box-line"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="items.length <= 0">
+                        <td *ngIf="initResolved" colspan="11" class="text-center">
+                            data not found
+                        </td>
+                        <td *ngIf="!initResolved" colspan="11" class="text-center">
+                            <div class="spinner-border mx-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <ngb-pagination [collectionSize]="totalData" [(page)]="currentPage" (pageChange)="loadData()" [maxSize]="5">
+            </ngb-pagination>
+        </div>
+    </div>
+</div>
+
+<ng-template #contentModal role="document" let-modal>
+    <div class="modal-header bg-light p-3">
+        <h5 class="modal-title">Change Cycle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"
+            (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3">
+            <label for="cycle-migrate" class="form-label">Cycle</label>
+            <input type="number" id="cycle-migrate" class="form-control" placeholder="Enter Cycle" #cycleMigrate
+                required />
+            <div class="invalid-feedback">Please enter a cycle.</div>
+        </div>
+        <div class="mb-3">
+            <textarea class="form-control" rows="3" #reason placeholder="Reason"></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="hstack gap-2 justify-content-end">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                (click)="modal.close('Close click')">Close</button>
+            <button (click)="submit(+cycleMigrate.value, reason.value)" class="btn btn-success" id="submit-btn">
+                <div *ngIf="resolved === false; else default" class="spinner-border spinner-border-sm mx-2"
+                    role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <ng-template #default>Submit</ng-template>
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="fire" [fullScreen]="true">
+    <p style="font-size: 20px; color: white">
+        Loading...
+    </p>
+</ngx-spinner>

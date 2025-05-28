@@ -107,7 +107,6 @@ exports.reactivateCheck = async (req, res) => {
         const area = trCheck['mst_check.mst_lokasi.id_area'];
         const periodCheck = trCheck['mst_check.total_cycle'];
 
-        console.log('cycle', postponeCycle)
         await db.sms.tr_check_postpone.create({
             check_id: id_check,
             cycle: postponeCycle,
@@ -130,7 +129,6 @@ exports.reactivateCheck = async (req, res) => {
         });
 
         const currentCycle = parseInt(currentCycleData.cycle.split(" ")[1]);
-        console.log('curr cycle', currentCycle)
 
         if (postponeCycle === currentCycle) { // if postpone cycle is current cycle
             await db.sms.tr_check.update({
@@ -156,9 +154,7 @@ exports.reactivateCheck = async (req, res) => {
         }
 
         const diffCycle = postponeCycle - currentCycle;
-        console.log(postponeCycle, currentCycle, diffCycle);
 
-        console.log('update', periodCheck)
         await db.sms.mst_check.update({
             current_week: periodCheck - diffCycle,
         }, {
@@ -167,7 +163,6 @@ exports.reactivateCheck = async (req, res) => {
             },
             transaction: t
         });
-        console.log('done update')
 
         await db.sms.tr_check.destroy({
             where: {

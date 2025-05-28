@@ -1,0 +1,91 @@
+<app-breadcrumbs title="Random Check" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table text-center" style="min-width: 800px;" [formGroup]="fg">
+                <thead>
+                    <tr>
+                        <th>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" #checkAll
+                                    (change)="checkOnePage(checkAll.checked)">
+                            </div>
+                        </th>
+                        <th>Sub Section</th>
+                        <th>Location</th>
+                        <th>Cycle</th>
+                        <th style="min-width: 300px;">Activity</th>
+                        <th style="min-width: 150px;">Standard</th>
+                        <th class="text-nowrap">Date Check</th>
+                        <th>Result</th>
+                        <th>Photo</th>
+                        <th>PIC</th>
+                        <th style="min-width: 100px;">Note</th>
+                        <th>Verification</th>
+                    </tr>
+                </thead>
+                <tbody formArrayName="items">
+                    <tr *ngFor="let item of items; let i = index" [formGroupName]="i">
+                        <th>
+                            <div class="form-check" *ngIf="!item.verificator">
+                                <input class="form-check-input" type="checkbox" formControlName="isChecked">
+                            </div>
+                        </th>
+                        <td>{{item.sub_section}}</td>
+                        <td>{{item.location}}</td>
+                        <td class="text-nowrap">{{item.cycle}}</td>
+                        <td>{{item.activity}}</td>
+                        <td>{{item.standard}}</td>
+                        <td>{{item.date_check}}</td>
+                        <td>{{item.result}}</td>
+                        <td>
+                            <img *ngIf="item.photo; else none" (click)="openModalImage(imageModal, item.photo)"
+                                [src]="baseApi + '/' + item.photo" alt="photo" width="100">
+                            <ng-template #none>-</ng-template>
+                        </td>
+                        <td>{{item.pic || 'Admin'}}</td>
+                        <td>{{item.note}}</td>
+                        <td class="text-nowrap">
+                            <ng-container *ngIf="!item.verificator; else verificatorName">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="ok" value="ok"
+                                        formControlName="result">
+                                    <label class="form-check-label" for="ok">OK</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="ng" value="ng"
+                                        formControlName="result">
+                                    <label class="form-check-label" for="ng">NG</label>
+                                </div>
+                            </ng-container>
+                            <ng-template #verificatorName>
+                                <div>
+                                    {{item.verificator | titlecase}}
+                                </div>
+                                <div>
+                                    ({{item.status_verification | uppercase}})
+                                </div>
+                            </ng-template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-success mt-3" (click)="submit()">
+            Submit
+        </button>
+    </div>
+</div>
+
+<ng-template #imageModal role="document" let-modal>
+    <div class="modal-body">
+        <img [src]="selectedImageUrl" class="w-100" alt="selected image">
+    </div>
+</ng-template>
+
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="fire" [fullScreen]="true">
+    <p style="font-size: 20px; color: white">
+        Loading...
+    </p>
+</ngx-spinner>

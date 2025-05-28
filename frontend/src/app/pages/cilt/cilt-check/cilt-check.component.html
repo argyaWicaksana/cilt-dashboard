@@ -1,0 +1,134 @@
+<app-breadcrumbs title="Pengecekan CILT" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="card">
+    <div class="card-header d-flex gap-3">
+        <div>
+            <select [(ngModel)]="area" (ngModelChange)="getSections()" class="form-select">
+                <option value="0" selected>Select Area</option>
+                <option value="1">LINE 1</option>
+                <option value="2">LINE 2</option>
+                <option value="3">LINE 3</option>
+            </select>
+        </div>
+        <div>
+            <select [(ngModel)]="section" class="form-select" (ngModelChange)="getSubSections()">
+                <option value="0" selected>Select Section</option>
+                <option *ngFor="let section of sections" [value]="section.id">
+                    {{section.name}}
+                </option>
+            </select>
+        </div>
+        <div>
+            <select [(ngModel)]="subSection" class="form-select">
+                <option value="0" selected>Select Sub Section</option>
+                <option *ngFor="let subSection of subSections" [value]="subSection.id">
+                    {{subSection.name}}
+                </option>
+            </select>
+        </div>
+        <div class="search-box">
+            <input type="text" class="form-control search" placeholder="Activity..." [(ngModel)]="activity">
+            <i class="ri-search-line search-icon"></i>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" (click)="currentPage = 1; loadData()">
+                <i class="ri-equalizer-line me-2 align-bottom"></i>Filters
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive mb-2">
+            <table class="table" [formGroup]="fg">
+                <thead>
+                    <tr>
+                        <th scope="col" *ngIf="hasAccess">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" #checkAll
+                                    (change)="checkOnePage(checkAll.checked)">
+                            </div>
+                        </th>
+                        <th scope="col">Area</th>
+                        <th scope="col" class="text-nowrap">Sub Section</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Cycle</th>
+                        <th scope="col" style="min-width: 150px;">Activity</th>
+                        <th scope="col" style="min-width: 150px;">Standard</th>
+                        <th scope="col" style="min-width: 140px;" *ngIf="hasAccess">Date Check</th>
+                        <th scope="col" *ngIf="hasAccess">Result</th>
+                        <th scope="col" style="min-width: 250px;" *ngIf="hasAccess">Photo</th>
+                        <th scope="col" style="min-width: 200px;" *ngIf="hasAccess">Note</th>
+                    </tr>
+                </thead>
+                <tbody formArrayName="items">
+                    <tr *ngFor="let item of items; let i = index" [formGroupName]="i">
+                        <th *ngIf="hasAccess">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="isChecked">
+                            </div>
+                        </th>
+                        <td class="text-nowrap">{{item.area}}</td>
+                        <td class="text-nowrap">{{item.subSection}}</td>
+                        <td class="text-nowrap">{{item.location}}</td>
+                        <td class="text-nowrap">{{item.cycle}}</td>
+                        <td>{{item.activity}}</td>
+                        <td>{{item.standard}}</td>
+                        <td *ngIf="hasAccess">
+                            <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
+                                formControlName="dateCheck" [convertModelValue]="true" required>
+                        </td>
+                        <td class="text-nowrap" *ngIf="hasAccess">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="ok-{{i}}" value="ok"
+                                    formControlName="result">
+                                <label class="form-check-label" for="ok-{{i}}">OK</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="ng-{{i}}" value="ng"
+                                    formControlName="result">
+                                <label class="form-check-label" for="ng-{{i}}">NG</label>
+                            </div>
+                            <small *ngIf="getValidity(i, 'result')" class="text-danger d-block mt-2">Result is
+                                required</small>
+                        </td>
+                        <td class="text-nowrap" *ngIf="hasAccess">
+                            <ng-container *ngIf="this.fgItems.controls[i]?.get('result')?.value === 'ng'">
+                                <input type="file"
+                                    [ngClass]="{'is-invalid': getValidity(i, 'photo') || (!isImageType[i] && submitted && fgItems.value[i].isChecked)}"
+                                    class="form-control" (change)="showImage($event, i)" />
+                                <img *ngIf="imagesUrl[i]" [src]="imagesUrl[i]" width="100">
+                                <small *ngIf="isImageType[i] === false && submitted" class="text-danger d-block mt-2">
+                                    Only images are supported
+                                </small>
+                            </ng-container>
+                        </td>
+                        <td class="text-nowrap" *ngIf="hasAccess">
+                            <textarea class="form-control" rows="3" formControlName="note"></textarea>
+                            <!-- <small *ngIf="submitted" class="text-danger d-block mt-2 invalid-feedback">
+                                Note Required
+                            </small> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row d-flex align-items-center mt-3">
+            <div class="col-6 d-flex justify-content-end">
+                <ngb-pagination [collectionSize]="itemLength" [(page)]="currentPage" [maxSize]="5"
+                    (pageChange)="loadData()">
+                </ngb-pagination>
+            </div>
+
+            <div *ngIf="hasAccess" class="col-6 d-flex justify-content-end pe-4">
+                <button class="btn btn-success" (click)="submit()">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="fire" [fullScreen]="true">
+    <p style="font-size: 20px; color: white">
+        Loading...
+    </p>
+</ngx-spinner>

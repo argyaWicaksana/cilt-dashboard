@@ -1,0 +1,258 @@
+<app-breadcrumbs title="Master Pengecekan" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <button *ngIf="hasAccess" type="button" class="btn btn-primary add-btn" id="create-btn"
+            (click)="openModal(contentModal)">
+            <i class="ri-add-line align-bottom me-1"></i>
+            Add
+        </button>
+        <div class="d-flex gap-2">
+            <div>
+                <select [(ngModel)]="areaSelected" class="form-select" (ngModelChange)="getSections(); loadData()">
+                    <option value="0" selected>Select Area</option>
+                    <option value="1">LINE 1</option>
+                    <option value="2">LINE 2</option>
+                    <option value="3">LINE 3</option>
+                </select>
+            </div>
+            <div>
+                <select [(ngModel)]="sectionSelected" (ngModelChange)="loadData()" class="form-select">
+                    <option value="0" selected>Select Section</option>
+                    <option *ngFor="let section of sectionsFilter" [value]="section.id">{{section.name}}</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <input type="text" class="form-control search" placeholder="Search..." #searchInput
+                    (keyup.enter)="searchData(searchInput.value)">
+                <i class="ri-search-line search-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="">
+                    <tr>
+                        <th scope="col">Area</th>
+                        <th scope="col">Section</th>
+                        <th scope="col" class="text-nowrap">Sub Section</th>
+                        <th scope="col" style="min-width: 140px;">Location</th>
+                        <th scope="col" style="min-width: 300px;">Activity</th>
+                        <th scope="col" class="text-center">Period Cycle</th>
+                        <th scope="col" class="text-center">Interval Time</th>
+                        <th scope="col" class="text-center">Machine Status</th>
+                        <th scope="col">Standard</th>
+                        <th scope="col">Upcoming Task</th>
+                        <th *ngIf="hasAccess" scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of items">
+                        <td class="text-nowrap">{{item.area.name}}</td>
+                        <td class="text-nowrap">{{item.section.name}}</td>
+                        <td>{{item.subSection.name}}</td>
+                        <td>{{item.location.name}}</td>
+                        <td>{{item.activity}}</td>
+                        <td>{{item.totalCycle}}</td>
+                        <td>{{item.intervalTime}}</td>
+                        <td>{{item.machineStatus}}</td>
+                        <td>{{item.standard}}</td>
+                        <td class="text-nowrap">
+                            <p>
+                                <span
+                                    class="badge rounded-pill badge-soft-{{item.totalCycle - item.currentWeek === 0 ? 'success':'warning'}}">
+                                    {{item.totalCycle - item.currentWeek === 0 ? "this week" : (item.totalCycle
+                                    -
+                                    item.currentWeek) + " more weeks"}}
+                                </span>
+                            </p>
+                        </td>
+                        <td *ngIf="hasAccess" class="px-3">
+                            <div class="hstack gap-3 fs-15">
+                                <a href="javascript:void(0);" class="link-primary"
+                                    (click)="openModal(contentModal, item.id)">
+                                    <i class=" ri-edit-box-line"></i></a>
+                                <a href="javascript:void(0);" class="link-danger" (click)="deleteData(item.id)">
+                                    <div *ngIf="resolved[item.id] === false; else trashIcon"
+                                        class="spinner-border spinner-border-sm mx-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <ng-template #trashIcon>
+                                        <i class="ri-delete-bin-5-line"></i>
+                                    </ng-template>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="items.length <= 0">
+                        <td *ngIf="initResolved" colspan="11" class="text-center">
+                            data not found
+                        </td>
+                        <td *ngIf="!initResolved" colspan="11" class="text-center">
+                            <div class="spinner-border mx-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+            <ngb-pagination [collectionSize]="totalData" [(page)]="currentPage" (pageChange)="loadData()" [maxSize]="5">
+            </ngb-pagination>
+        </div>
+    </div>
+</div>
+
+<ng-template #contentModal role="document" let-modal>
+    <div class="modal-header bg-light p-3">
+        <h5 class="modal-title">{{modalType}} Master Data</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"
+            (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <form (ngSubmit)="submit()" [formGroup]="fg" class="tablelist-form" autocomplete="off">
+        <div class="modal-body">
+            <div class="mb-3 row">
+                <div class="col-6">
+                    <label for="area" class="form-label">Area</label>
+                    <select class="form-select" id="area" required
+                        [ngClass]="{ 'is-invalid': submitted && !areaForm.value }"
+                        (change)="generateSections(+areaForm.value)" #areaForm>
+                        <option value="" hidden></option>
+                        <option value="1" [selected]="selectedData?.area?.id === 1">LINE 1</option>
+                        <option value="2" [selected]="selectedData?.area?.id === 2">LINE 2</option>
+                        <option value="3" [selected]="selectedData?.area?.id === 3">LINE 3</option>
+                    </select>
+                    <div *ngIf="submitted && !areaForm.value" class="invalid-feedback text-start">
+                        <div>area is required</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label for="section" class="form-label">Section</label>
+                    <select class="form-select" id="section" required
+                        [ngClass]="{ 'is-invalid': submitted && !sectionForm.value }"
+                        (change)="generateSubSections(+sectionForm.value)" #sectionForm>
+                        <option value="" hidden></option>
+                        <option *ngFor="let section of sections" [value]="section.id"
+                            [selected]="selectedData?.section?.id === section.id">
+                            {{section.name}}
+                        </option>
+                    </select>
+                    <div *ngIf="submitted && !sectionForm.value" class="invalid-feedback text-start">
+                        <div>section is required</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col-6">
+                    <label for="sub-section" class="form-label">Sub Section</label>
+                    <select class="form-select" id="sub-section" required
+                        [ngClass]="{ 'is-invalid': submitted && !subSectionForm.value }"
+                        (change)="generateLocations(+subSectionForm.value)" #subSectionForm>
+                        <option value="" hidden></option>
+                        <option *ngFor="let subSection of subSections" [value]="subSection.id"
+                            [selected]="selectedData?.subSection?.id === subSection.id">
+                            {{subSection.name}}
+                        </option>
+                    </select>
+                    <div *ngIf="submitted && !subSectionForm.value" class="invalid-feedback text-start">
+                        <div>sub section is required</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label for="location" class="form-label">Location</label>
+                    <select class="form-select" id="location" formControlName="locationId" required
+                        [ngClass]="{ 'is-invalid': submitted && form['locationId'].errors }">
+                        <option value="" hidden></option>
+                        <option *ngFor="let location of locations" [value]="location.id">
+                            {{location.name}}
+                        </option>
+                    </select>
+                    <div *ngIf="submitted && form['locationId'].errors" class="invalid-feedback text-start">
+                        <div *ngIf="form['locationId'].errors['required']">location is required</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="activity" class="form-label">Activity</label>
+                <textarea class="form-control" [ngClass]="{'is-invalid': submitted && form['activity'].errors}"
+                    id="activity" formControlName="activity" rows="3"
+                    required>{{selectedData?.activity ?? ''}}</textarea>
+                <div *ngIf="submitted && form['activity'].errors" class="invalid-feedback text-start">
+                    <div *ngIf="form['activity'].errors['required']">activity is required</div>
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col-6">
+                    <label for="total-cycle" class="form-label">Periode Cycle (Week)</label>
+                    <input type="number" id="total-cycle" #totalCycle class="form-control"
+                        placeholder="Enter Total Cycle" required formControlName="totalCycle"
+                        (input)="updateCurrentWeekValidator(+totalCycle.value)"
+                        [ngClass]="{ 'is-invalid': submitted && form['totalCycle'].errors }" />
+                    <div class="invalid-feedback">Please enter a period cycle.</div>
+                </div>
+
+                <div class="col-6">
+                    <label for="interval-time" class="form-label">Interval Time (Minute)</label>
+                    <input type="number" id="interval-time" class="form-control" placeholder="Enter Interval Time"
+                        formControlName="intervalTime" />
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <div class="col-6">
+                    <label for="machine-status" class="form-label">Machine Status</label>
+                    <select class="form-select" id="machine-status" formControlName="machineStatus" required
+                        [ngClass]="{ 'is-invalid': submitted && form['machineStatus'].errors }">
+                        <option value="" hidden></option>
+                        <option value="1" [selected]="selectedData?.machineStatus">run</option>
+                        <option value="2" [selected]="selectedData?.machineStatus === false">stop</option>
+                    </select>
+                    <div class="invalid-feedback text-start">machine status is required</div>
+                </div>
+                <div class="col-6">
+                    <label for="upcoming-task" class="form-label">Upcoming Task (Week)</label>
+                    <input type="number" id="upcoming-task" class="form-control" formControlName="upcomingTask" required
+                        [ngClass]="{ 'is-invalid': submitted && form['upcomingTask'].errors }" />
+                    <div class="invalid-feedback" *ngIf="form['upcomingTask'].hasError('required')">Please enter
+                        upcoming task field.</div>
+                    <div class="invalid-feedback" *ngIf="form['upcomingTask'].hasError('max')">Upcoming task max value
+                        is {{ totalCycle.value }}</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="standard" class="form-label">Standard</label>
+                <textarea class="form-control form-text"
+                    [ngClass]="{'is-invalid': submitted && form['standard'].errors}" id="standard"
+                    formControlName="standard" rows="3" required>{{selectedData?.standard ?? ''}}</textarea>
+                <div *ngIf="submitted && form['standard'].errors" class="invalid-feedback text-start">
+                    <div *ngIf="form['standard'].errors['required']">standard is required</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="hstack gap-2 justify-content-end">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                    (click)="modal.close('Close click')">Close</button>
+                <button type="submit" class="btn btn-success" id="submit-btn">
+                    <div *ngIf="resolved[0] === false; else default" class="spinner-border spinner-border-sm mx-2"
+                        role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <ng-template #default>Submit</ng-template>
+                </button>
+            </div>
+        </div>
+    </form>
+</ng-template>
+
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="fire" [fullScreen]="true">
+    <p style="font-size: 20px; color: white">
+        Loading...
+    </p>
+</ngx-spinner>
