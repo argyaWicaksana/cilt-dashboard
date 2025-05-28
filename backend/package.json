@@ -35,7 +35,8 @@
     "prod": "nodemon -r dotenv/config app.js dotenv_config_path=./env/.env.prod",
     "test": "echo \"Error: no test specified\" && exit 1",
     "models-dev": "node ./config/sequelizeAuto.js --env=../env/.env.dev",
-    "models-prod": "node ./config/sequelizeAuto.js --env=../env/.env.prod"
+    "models-prod": "node ./config/sequelizeAuto.js --env=../env/.env.prod",
+    "build": "ng build"
   },
   "repository": {
     "type": "git",
