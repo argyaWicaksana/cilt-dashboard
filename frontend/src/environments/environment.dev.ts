@@ -5,7 +5,7 @@
 export const environment = {
   baseUrl: 'http://localhost:3887/linked-apps',
   baseUrlRaw: 'http://localhost:3887',
-  baseApi2: 'http://localhost:3001',
+  baseApi2: 'http://localhost:3000',
   secret: 'TWF1bGFuQXRveWVrM0RpZ2l0',
   logoutUrl: 'http://192.168.9.47/maissy-dashboard/',
   
