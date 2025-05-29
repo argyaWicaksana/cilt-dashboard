@@ -90,7 +90,7 @@ const sequelizeConfigurations = {
     [toCamelCaseName(process.env.MYSQL_47_SMS_NAME)]: {
         host: process.env.MYSQL_47_HOST,
         dialect: process.env.MYSQL_47_DIALECT,
-        database: process.env.MYSQL_47_SMS_NAME,
+        database: process.env.DB_PREFIX + process.env.MYSQL_47_SMS_NAME,
         username: process.env.MYSQL_47_USER,
         password: process.env.MYSQL_47_PASS,
         pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_SMS_NAME)],
@@ -106,7 +106,7 @@ const sequelizeConfigurations = {
     [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC1_NAME)]: {
         host: process.env.MYSQL_47_HOST,
         dialect: process.env.MYSQL_47_DIALECT,
-        database: process.env.MYSQL_47_AIO_IOT_OC1_NAME,
+        database: process.env.DB_PREFIX + process.env.MYSQL_47_AIO_IOT_OC1_NAME,
         username: process.env.MYSQL_47_USER,
         password: process.env.MYSQL_47_PASS,
         pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC1_NAME)],
@@ -122,7 +122,7 @@ const sequelizeConfigurations = {
     [toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC2_NAME)]: {
         host: process.env.MYSQL_47_HOST,
         dialect: process.env.MYSQL_47_DIALECT,
-        database: process.env.MYSQL_47_AIO_IOT_OC2_NAME,
+        database: process.env.DB_PREFIX + process.env.MYSQL_47_AIO_IOT_OC2_NAME,
         username: process.env.MYSQL_47_USER,
         password: process.env.MYSQL_47_PASS,
         pool: poolConfigurations[toCamelCaseName(process.env.MYSQL_47_AIO_IOT_OC2_NAME)],
