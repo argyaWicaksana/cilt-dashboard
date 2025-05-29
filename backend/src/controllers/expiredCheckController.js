@@ -149,7 +149,12 @@ exports.reactivateCheck = async (req, res) => {
 
             t.commit();
 
-            res.status(200).json({ message: 'data updated!' });
+            response(req, res, {
+                status: 200,
+                data: {
+                    message: 'Data updated!'
+                }
+            });
             return;
         }
 
@@ -172,6 +177,13 @@ exports.reactivateCheck = async (req, res) => {
         });
 
         t.commit();
+
+        response(req, res, {
+            status: 200,
+            data: {
+                message: 'Data updated!'
+            }
+        });
     } catch (error) {
         t.rollback();
         console.error(error);

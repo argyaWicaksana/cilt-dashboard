@@ -61,8 +61,8 @@
         <div>
             <select class="form-select" [(ngModel)]="selectedCycle">
                 <option [value]="0" selected>Select Cycle</option>
-                <option *ngFor="let c of cycleData" [value]="c.cycle.split(' ')[1]">
-                    {{c.cycle}}
+                <option *ngFor="let c of cycleData" [value]="c">
+                    Cycle {{c}}
                 </option>
             </select>
         </div>

@@ -52,8 +52,6 @@ exports.createCycleNote = async (req, res) => {
             area
         } = req.body;
 
-        console.log('body', req.body)
-
         const data = await db.sms.cycle_note.create({
             start_date,
             end_date,

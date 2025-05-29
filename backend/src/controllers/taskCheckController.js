@@ -2,7 +2,6 @@ const { Sequelize } = require('sequelize');
 const { db, sequelizeInstances } = require("../../config/sequelize");
 const response = require("../tools/response");
 const { filterUserMapping } = require('../tools/filterUserMapping');
-const moment = require('moment');
 
 exports.getAllTaskCheck = async (req, res) => {
     try {

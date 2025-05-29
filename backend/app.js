@@ -10,7 +10,7 @@ const path = require("path");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const moment = require("moment");
-const fileUpload = require("express-fileupload");
+// const fileUpload = require("express-fileupload");
 const csurf = require("csurf");
 const cron = require("node-cron");
 const response = require("./src/tools/response");
@@ -23,10 +23,10 @@ const app = express();
 app.use(morgan("dev"));
 
 // Enable file uploads
-app.use(fileUpload());
+// app.use(fileUpload());
 
 // Security Middleware
-app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
 // CORS Configuration
 const corsOptions = {
@@ -66,6 +66,7 @@ app.use(csrfProtection);
 
 
 // Other Middlewares...
+app.use(express.static(path.join(__dirname, "public")));
 
 // Custom middleware to add timestamps
 app.use((req, res, next) => {

@@ -6,7 +6,6 @@ const response = require("../tools/response");
 exports.getAllMappingUserArea = async (req, res) => {
     try {
         const { page, search } = req.query;
-        console.log('ssss', search, page)
 
         const data = await db.sms.mst_mapping_user_area.findAndCountAll({
             attributes: {

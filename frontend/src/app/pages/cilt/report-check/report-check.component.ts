@@ -61,7 +61,11 @@ export class ReportCheckComponent {
   getCycle() {
     const [year, month] = this.selectedMonthYear.split("-");
     this.masterSelectService.getCycle(+month, +year).subscribe((res) => {
-      this.cycleData = res;
+      const formattedCycleData = res.map(
+        c => parseInt(c.cycle.split(' ')[1])
+      ).sort((a, b) => a - b);
+
+      this.cycleData = formattedCycleData;
     });
   }
 

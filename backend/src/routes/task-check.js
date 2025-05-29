@@ -5,10 +5,11 @@ const router = express.Router();
 const taskCheckController = require('../controllers/taskCheckController');
 const { verifyToken } = require('../middlewares/authMiddleware');
 const multer = require('multer');
+const path = require("path");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '..', 'public', 'uploads'));
+        cb(null, path.join(__dirname, '..', '..', 'public', 'uploads', 'tr_check'));
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
