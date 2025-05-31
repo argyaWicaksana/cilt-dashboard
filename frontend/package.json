@@ -3,11 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --port 5000",
     "prod": "ng serve --configuration production",
     "dev": "ng serve --configuration development",
-    "deploy": "ng build --base-href=/linked-apps/ --configuration production",
-    "build": "ng build",
+    "build": "ng build --base-href=/cilt-dashboard/ --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

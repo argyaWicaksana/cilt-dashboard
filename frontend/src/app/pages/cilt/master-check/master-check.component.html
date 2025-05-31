@@ -1,13 +1,13 @@
 <app-breadcrumbs title="Master Pengecekan" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between">
+    <div class="card-header d-flex flex-wrap justify-content-between">
         <button *ngIf="hasAccess" type="button" class="btn btn-primary add-btn" id="create-btn"
             (click)="openModal(contentModal)">
             <i class="ri-add-line align-bottom me-1"></i>
             Add
         </button>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             <div>
                 <select [(ngModel)]="areaSelected" class="form-select" (ngModelChange)="getSections(); loadData()">
                     <option value="0" selected>Select Area</option>

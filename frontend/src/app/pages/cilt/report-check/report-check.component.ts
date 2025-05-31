@@ -21,7 +21,7 @@ export class ReportCheckComponent {
   totalData = 0;
   initResolved = true;
   selectedImageUrl = '';
-  readonly baseApi = environment.baseApi2;
+  readonly baseApi = environment.baseApi2 + '/api';
   monthFlatpickr: any[];
   selectedMonthYear = moment().format('YYYY-MM');
   monthYearFE = this.selectedMonthYear;

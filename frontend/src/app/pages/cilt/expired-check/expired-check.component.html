@@ -1,7 +1,7 @@
 <app-breadcrumbs title="Pengecekan Expired" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
 
 <div class="card">
-    <div class="card-header d-flex gap-3">
+    <div class="card-header d-flex flex-wrap gap-3">
         <div>
             <select [(ngModel)]="areaSelected" (ngModelChange)="getSections()" class="form-select">
                 <option value="0" selected>Select Area</option>

@@ -35,7 +35,11 @@ const corsOptions = {
         // You can implement your own logic to validate the origin
 
         // Allow requests without a specified origin (e.g., Postman)
-        const allowedOrigins = ["http://localhost:4200"];
+        const allowedOrigins = [
+            "http://localhost:4200",
+            "http://localhost:5000",
+            "http://argz.my.id/"
+        ];
 
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -94,13 +98,21 @@ cron.schedule('0 15 * * *', cronController.scheduleJobs);
 cron.schedule('0 23 * * *', cronController.scheduleJobs);
 
 app.get("/api/csrf-token", (req, res) => {
-    // res.cookie('XSRF-TOKEN', req.csrfToken());
-    const csrfToken = req.csrfToken();
-    res.cookie('XSRF-TOKEN', csrfToken);
-    response(req, res, {
-        status: 200,
-        message: "Success"
-    });
+    try {
+        const csrfToken = req.csrfToken();
+        res.cookie('XSRF-TOKEN', csrfToken);
+        response(req, res, {
+            status: 200,
+            message: "Success"
+        });
+    } catch (error) {
+        console.error(error);
+        response(req, res, {
+            status: 500,
+            data: error,
+            message: error.message
+        });
+    }
 });
 
 // Error handler

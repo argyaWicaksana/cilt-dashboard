@@ -1,6 +1,6 @@
 <app-breadcrumbs title="Laporan Pengecekan" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
 
-<div class="d-flex">
+<div class="row">
     <div class="card card-animate col-lg-3 col-md-6 col-12">
         <div class="card-body">
             <div class="d-flex align-items-center">
@@ -38,7 +38,8 @@
         <div class="card-body">
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1 overflow-hidden">
-                    <p class="text-uppercase fw-medium text-muted text-truncate mb-3">Total Tasks {{ monthYearFE | date: 'MMM YYYY' }}</p>
+                    <p class="text-uppercase fw-medium text-muted text-truncate mb-3">Total Tasks {{ monthYearFE | date:
+                        'MMM YYYY' }}</p>
                     <h4 class="fs-22 fw-semibold ff-secondary mb-0">
                         <span class="counter-value">{{totalTask}}</span>
                     </h4>
@@ -56,99 +57,102 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header d-flex gap-3">
-        <div>
-            <select class="form-select" [(ngModel)]="selectedCycle">
-                <option [value]="0" selected>Select Cycle</option>
-                <option *ngFor="let c of cycleData" [value]="c">
-                    Cycle {{c}}
-                </option>
-            </select>
+<div class="row">
+    <div class="card">
+        <div class="card-header d-flex flex-wrap gap-3">
+            <div>
+                <select class="form-select" [(ngModel)]="selectedCycle">
+                    <option [value]="0" selected>Select Cycle</option>
+                    <option *ngFor="let c of cycleData" [value]="c">
+                        Cycle {{c}}
+                    </option>
+                </select>
+            </div>
+            <div>
+                <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
+                    placeholder="Select Month" [value]="selectedMonthYear" (change)="monthChange($event)"
+                    [convertModelValue]="true" [plugins]="monthFlatpickr">
+            </div>
+            <div>
+                <select [(ngModel)]="areaSelected" class="form-select" (ngModelChange)="getSections()">
+                    <option value="0" selected>Select Area</option>
+                    <option value="1">LINE 1</option>
+                    <option value="2">LINE 2</option>
+                    <option value="3">LINE 3</option>
+                </select>
+            </div>
+            <div>
+                <select [(ngModel)]="sectionSelected" class="form-select">
+                    <option value="0" selected>Select Section</option>
+                    <option *ngFor="let section of sectionsFilter" [value]="section.id">{{section.name}}</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <input type="text" class="form-control search" placeholder="Activity..." [(ngModel)]="activity">
+                <i class="ri-search-line search-icon"></i>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary" (click)="currentPage = 1; loadData(); loadProgress();">
+                    <i class="ri-equalizer-line me-2 align-bottom"></i>Filters
+                </button>
+            </div>
         </div>
-        <div>
-            <input class="form-control flatpickr-input" type="text" mwlFlatpickr [altInput]="true"
-                placeholder="Select Month" [value]="selectedMonthYear" (change)="monthChange($event)"
-                [convertModelValue]="true" [plugins]="monthFlatpickr">
-        </div>
-        <div>
-            <select [(ngModel)]="areaSelected" class="form-select" (ngModelChange)="getSections()">
-                <option value="0" selected>Select Area</option>
-                <option value="1">LINE 1</option>
-                <option value="2">LINE 2</option>
-                <option value="3">LINE 3</option>
-            </select>
-        </div>
-        <div>
-            <select [(ngModel)]="sectionSelected" class="form-select">
-                <option value="0" selected>Select Section</option>
-                <option *ngFor="let section of sectionsFilter" [value]="section.id">{{section.name}}</option>
-            </select>
-        </div>
-        <div class="search-box">
-            <input type="text" class="form-control search" placeholder="Activity..." [(ngModel)]="activity">
-            <i class="ri-search-line search-icon"></i>
-        </div>
-        <div>
-            <button type="button" class="btn btn-primary" (click)="currentPage = 1; loadData(); loadProgress();">
-                <i class="ri-equalizer-line me-2 align-bottom"></i>Filters
-            </button>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Area</th>
-                        <th scope="col" class="text-nowrap">Sub Section</th>
-                        <th scope="col">Location</th>
-                        <th scope="col">Activity</th>
-                        <th scope="col">Standard</th>
-                        <th scope="col">Cycle</th>
-                        <th scope="col" class="text-nowrap">Date Check</th>
-                        <th scope="col">Result</th>
-                        <th scope="col">Photo</th>
-                        <th scope="col">PIC</th>
-                        <th scope="col">Note</th>
-                        <th scope="col" class="text-nowrap">Postpone Reason</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of items">
-                        <td class="text-nowrap">{{item.area}}</td>
-                        <td>{{item.sub_section}}</td>
-                        <td>{{item.location}}</td>
-                        <td>{{item.activity}}</td>
-                        <td>{{item.standard}}</td>
-                        <td class="text-nowrap">{{item.cycle}}</td>
-                        <td>{{item.date_check | date: 'mediumDate'}}</td>
-                        <td>{{item.result | uppercase}}</td>
-                        <td>
-                            <img *ngIf="item.photo; else none" (click)="openModalImage(imageModal, item.photo)"
-                                src="{{baseApi + '/' + item.photo }}" alt="photo" width="100">
-                            <ng-template #none>-</ng-template>
-                        </td>
-                        <td>{{item.pic | titlecase}}</td>
-                        <td>{{item.note}}</td>
-                        <td>{{item.reason_postpone ?? '-'}}</td>
-                    </tr>
-                    <tr *ngIf="items.length <= 0">
-                        <td *ngIf="initResolved" colspan="12" class="text-center">
-                            data not found
-                        </td>
-                        <td *ngIf="!initResolved" colspan="12" class="text-center">
-                            <div class="spinner-border mx-2" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex justify-content-center mt-3">
-            <ngb-pagination [collectionSize]="totalData" [(page)]="currentPage" (pageChange)="loadData()" [maxSize]="5">
-            </ngb-pagination>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Area</th>
+                            <th scope="col" class="text-nowrap">Sub Section</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Activity</th>
+                            <th scope="col">Standard</th>
+                            <th scope="col">Cycle</th>
+                            <th scope="col" class="text-nowrap">Date Check</th>
+                            <th scope="col">Result</th>
+                            <th scope="col">Photo</th>
+                            <th scope="col">PIC</th>
+                            <th scope="col">Note</th>
+                            <th scope="col" class="text-nowrap">Postpone Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of items">
+                            <td class="text-nowrap">{{item.area}}</td>
+                            <td>{{item.sub_section}}</td>
+                            <td>{{item.location}}</td>
+                            <td>{{item.activity}}</td>
+                            <td>{{item.standard}}</td>
+                            <td class="text-nowrap">{{item.cycle}}</td>
+                            <td>{{item.date_check | date: 'mediumDate'}}</td>
+                            <td>{{item.result | uppercase}}</td>
+                            <td>
+                                <img *ngIf="item.photo; else none" (click)="openModalImage(imageModal, item.photo)"
+                                    src="{{baseApi + '/' + item.photo }}" alt="photo" width="100">
+                                <ng-template #none>-</ng-template>
+                            </td>
+                            <td>{{item.pic | titlecase}}</td>
+                            <td>{{item.note}}</td>
+                            <td>{{item.reason_postpone ?? '-'}}</td>
+                        </tr>
+                        <tr *ngIf="items.length <= 0">
+                            <td *ngIf="initResolved" colspan="12" class="text-center">
+                                data not found
+                            </td>
+                            <td *ngIf="!initResolved" colspan="12" class="text-center">
+                                <div class="spinner-border mx-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                <ngb-pagination [collectionSize]="totalData" [(page)]="currentPage" (pageChange)="loadData()"
+                    [maxSize]="5">
+                </ngb-pagination>
+            </div>
         </div>
     </div>
 </div>
