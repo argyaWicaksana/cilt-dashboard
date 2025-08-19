@@ -85,10 +85,8 @@ export class ExpiredCheckComponent {
 
   async submit(cycle: number, reason_postpone: string) {
     try {
-      console.log('sss', this.selectedData)
       const { data: currentCycleData } = await firstValueFrom(this.service.currentCycle(this.selectedData!.area));
       const currentCycle = +currentCycleData.cycle.split(" ")[1];
-      console.log('cycle', currentCycle, cycle)
 
       if (cycle && reason_postpone && cycle >= currentCycle) {
         this.resolved = false;

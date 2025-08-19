@@ -46,7 +46,7 @@ export class ExpiredCheckService {
   }
 
   currentCycle(area: string) {
-    const areaId = area === 'OCI-1' ? 1 : (area === 'OCI-2' ? 2 : 3);
+    const areaId = area === 'LINE 1' ? 1 : (area === 'LINE 2' ? 2 : 3);
 
     return this.http.get<any>(environment.baseApi2 + '/api/master-check/current-cycle/' + areaId);
   }

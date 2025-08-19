@@ -42,7 +42,7 @@ exports.getAllFinishedCheck = async (req, res) => {
         }
 
         if (month_year) {
-            conditions.push("MONTH(tc.created_at) = :month AND YEAR(tc.created_at) = :year");
+            conditions.push("MONTH(mc2.start_date) = :month AND YEAR(mc2.start_date) = :year");
             replacements.month = month_year.split("-")[1];
             replacements.year = month_year.split("-")[0];
         }

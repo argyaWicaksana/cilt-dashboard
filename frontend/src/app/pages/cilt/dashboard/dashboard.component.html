@@ -26,11 +26,11 @@
                 <li>{{ c.cycle }} ({{ c.reason_stop }})</li>
             </ul>
         </div>
-        <div *ngIf="progressCiltBarChart[i]" class="col-lg-6">
-            <div echarts [options]="progressCiltBarChart[i]"></div>
-        </div>
         <div *ngIf="progressCiltPieChart[i]" class="col-lg-6">
             <div echarts [options]="progressCiltPieChart[i]"></div>
+        </div>
+        <div *ngIf="progressCiltBarChart[i]" class="col-lg-6">
+            <div echarts [options]="progressCiltBarChart[i]"></div>
         </div>
     </div>
 </div>

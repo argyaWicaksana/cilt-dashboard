@@ -81,7 +81,7 @@ export class StopCycleComponent implements OnInit {
     if (item) {
       this.selectedDataId = item.id;
 
-      this.form['area'].setValue(item.area === 'OCI-1' ? 1 : (item.area === 'OCI-2' ? 2 : 3));
+      this.form['area'].setValue(item.area === 'LINE 1' ? 1 : (item.area === 'LINE 2' ? 2 : 3));
       this.form['reason_stop'].setValue(item.reason_stop);
       this.form['rangeDate'].setValue({
         from: item.start_date,
